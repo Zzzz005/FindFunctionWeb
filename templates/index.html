@@ -1,23 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <title>Find f_ Variables</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 20px;
+        color: #333;
+    }
+    h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    form {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        max-width: 400px;
+        width: 100%;
+    }
+    input[type="file"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 100%;
+    }
+    button {
+        background-color: #FFC107;
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        width: 100%;
+    }
+    button:hover {
+        background-color: #ffca28;
+    }
+    .results {
+        margin-top: 30px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        max-width: 600px;
+        width: 100%;
+        word-break: break-word;
+    }
+    .results ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .results li {
+        background: #ffedb6;
+        margin: 5px 0;
+        padding: 8px 12px;
+        border-radius: 5px;
+        word-break: break-word;
+    }
+
+    /* ===== АДАПТИВНОСТЬ ===== */
+    @media (max-width: 768px) {
+        body {
+            padding: 30px 10px;
+        }
+        form {
+            padding: 15px 20px;
+            max-width: 90%;
+        }
+        .results {
+            padding: 15px 20px;
+            max-width: 90%;
+        }
+        button {
+            font-size: 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 22px;
+        }
+        button {
+            font-size: 14px;
+            padding: 10px;
+        }
+        .results h2 {
+            font-size: 18px;
+        }
+        .results li {
+            font-size: 14px;
+        }
+    }
+</style>
 </head>
 <body>
-<h1>Загрузка файла</h1>
+
+<h1>Find f_ Variables</h1>
+
 <form method="post" enctype="multipart/form-data">
-    <input type="file" name="file" required>
-    <button type="submit">Поиск переменных f_</button>
+    <input type="file" name="files" multiple>
+    <button type="submit">Отправить</button>
 </form>
 
-{% if results %}
-<h2>Найденные переменные:</h2>
-<ul>
-{% for var in results %}
-    <li>{{ var }}</li>
-{% endfor %}
-</ul>
+
+{% if results_by_file %}
+<div class="results">
+    <h2>Найденные переменные:</h2>
+    {% for file_name, vars in results_by_file.items() %}
+        <h3>{{ file_name }}</h3>
+        <ul>
+        {% for var in vars %}
+            <li>{{ var }}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+</div>
 {% endif %}
+
+
 </body>
 </html>
