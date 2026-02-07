@@ -1,7 +1,0 @@
-f_function
-
-o_tablr
-hi
-hello
-$f_gide
-f_function_dfl
