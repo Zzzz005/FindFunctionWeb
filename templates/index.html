@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Find f_ Variables</title>
 <style>
     body {
@@ -73,38 +74,36 @@
     }
 
     /* ===== АДАПТИВНОСТЬ ===== */
-    @media (max-width: 768px) {
-        body {
-            padding: 30px 10px;
-        }
-        form {
-            padding: 15px 20px;
-            max-width: 90%;
-        }
-        .results {
-            padding: 15px 20px;
-            max-width: 90%;
-        }
-        button {
-            font-size: 15px;
-        }
+    /* Для экранов до 600px (телефоны) */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 10px;
     }
+    h1 {
+        font-size: 24px;
+    }
+    form {
+        padding: 15px 20px;
+        max-width: 100%;
+    }
+    input[type="file"] {
+        padding: 12px;
+        font-size: 16px;
+    }
+    button {
+        padding: 15px 25px;
+        font-size: 18px;
+    }
+    .results {
+        padding: 15px;
+        max-width: 100%;
+    }
+    .results li {
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+}
 
-    @media (max-width: 480px) {
-        h1 {
-            font-size: 22px;
-        }
-        button {
-            font-size: 14px;
-            padding: 10px;
-        }
-        .results h2 {
-            font-size: 18px;
-        }
-        .results li {
-            font-size: 14px;
-        }
-    }
 </style>
 </head>
 <body>
