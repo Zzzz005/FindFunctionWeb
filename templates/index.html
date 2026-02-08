@@ -4,132 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Find f_ Variables</title>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<!-- Mammoth (DOCX) -->
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f9;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 50px 20px;
-        color: #333;
-    }
-    h1 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    form {
-        background: #fff;
-        padding: 20px 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        max-width: 400px;
-        width: 100%;
-    }
-    input[type="file"] {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        width: 100%;
-    }
-    button {
-        background-color: #FFC107;
-        color: #fff;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: 0.3s;
-        width: 100%;
-    }
-    button:hover {
-        background-color: #ffca28;
-    }
-    .results {
-        margin-top: 30px;
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        max-width: 600px;
-        width: 100%;
-        word-break: break-word;
-    }
-    .results ul {
-        list-style: none;
-        padding-left: 0;
-    }
-    .results li {
-        background: #ffedb6;
-        margin: 5px 0;
-        padding: 8px 12px;
-        border-radius: 5px;
-        word-break: break-word;
-    }
-
-    /* ===== АДАПТИВНОСТЬ ===== */
-    /* Для экранов до 600px (телефоны) */
-@media (max-width: 600px) {
-    body {
-        padding: 20px 10px;
-    }
-    h1 {
-        font-size: 24px;
-    }
-    form {
-        padding: 15px 20px;
-        max-width: 100%;
-    }
-    input[type="file"] {
-        padding: 12px;
-        font-size: 16px;
-    }
-    button {
-        padding: 15px 25px;
-        font-size: 18px;
-    }
-    .results {
-        padding: 15px;
-        max-width: 100%;
-    }
-    .results li {
-        padding: 10px 15px;
-        font-size: 16px;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f9;
+    padding: 20px;
 }
-
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+}
+h1 {
+    text-align: center;
+}
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+button {
+    background: #FFC107;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+li {
+    background: #ffedb6;
+    margin: 6px 0;
+    padding: 10px;
+    border-radius: 6px;
+    word-break: break-word;
+}
 </style>
 </head>
+
 <body>
+<div class="container">
+    <h1>Find f_ Variables</h1>
 
-<h1>Find f_ Variables</h1>
+    <input type="file" id="files" multiple>
+    <button onclick="analyze()">Анализировать</button>
 
-<form method="post" enctype="multipart/form-data">
-    <input type="file" name="files" multiple>
-    <button type="submit">Отправить</button>
-</form>
-
-
-{% if results_by_file %}
-<div class="results">
-    <h2>Найденные переменные:</h2>
-    {% for file_name, vars in results_by_file.items() %}
-        <h3>{{ file_name }}</h3>
-        <ul>
-        {% for var in vars %}
-            <li>{{ var }}</li>
-        {% endfor %}
-        </ul>
-    {% endfor %}
+    <ul id="result"></ul>
 </div>
-{% endif %}
 
+<script>
+async function analyze() {
+    const files = document.getElementById("files").files;
+    let fullText = "";
 
+    for (const file of files) {
+        if (file.name.endsWith(".pdf")) {
+            fullText += await readPDF(file);
+        } else if (file.name.endsWith(".docx")) {
+            fullText += await readDOCX(file);
+        } else {
+            fullText += await file.text();
+        }
+    }
+
+    const response = await fetch("/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: fullText })
+    });
+
+    const vars = await response.json();
+    const ul = document.getElementById("result");
+    ul.innerHTML = "";
+
+    vars.forEach(v => {
+        const li = document.createElement("li");
+        li.textContent = v;
+        ul.appendChild(li);
+    });
+}
+
+async function readPDF(file) {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    let text = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(i => i.str).join(" ") + "\n";
+    }
+    return text;
+}
+
+async function readDOCX(file) {
+    const buffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+    return result.value;
+}
+</script>
 </body>
 </html>
