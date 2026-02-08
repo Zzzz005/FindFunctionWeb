@@ -15,31 +15,44 @@
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f9;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 20px;
+    color: #333;
 }
 .container {
-    max-width: 600px;
-    margin: auto;
     background: #fff;
-    padding: 20px;
+    padding: 20px 30px;
     border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 h1 {
     text-align: center;
+    color: #2c3e50;
 }
 input[type="file"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 button {
-    background: #FFC107;
+    width: 100%;
+    background-color: #FFC107;
+    color: #fff;
     border: none;
     padding: 15px;
-    width: 100%;
     font-size: 18px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #ffca28;
 }
 ul {
     list-style: none;
@@ -51,6 +64,31 @@ li {
     padding: 10px;
     border-radius: 6px;
     word-break: break-word;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 10px;
+    }
+    h1 {
+        font-size: 24px;
+    }
+    input[type="file"] {
+        padding: 10px;
+        font-size: 16px;
+    }
+    button {
+        padding: 12px;
+        font-size: 16px;
+    }
+    .container {
+        padding: 15px;
+    }
+    li {
+        padding: 8px;
+        font-size: 14px;
+    }
 }
 </style>
 </head>
@@ -101,7 +139,6 @@ async function readPDF(file) {
     const buffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
     let text = "";
-
     for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
